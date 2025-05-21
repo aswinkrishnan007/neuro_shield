@@ -21,9 +21,18 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   @override
-  void didUpdateWidget(HomeScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
+  Widget build(BuildContext context) {
+    final deviceServices = ref.watch(deviceServiceProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (deviceServices.isNotEmpty) {
+        if (deviceServices[deviceServices.length - 1].accessStatus == 'Denied') {
+          var snackBar = SnackBar(
+              backgroundColor:Colors.red,
+              content: Text(
+                  '${deviceServices[deviceServices.length - 1].serviceName} access denied.'));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
+      }
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
@@ -32,11 +41,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         );
       }
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final deviceServices = ref.watch(deviceServiceProvider);
 
     return Scaffold(
       appBar: AppBar(
